@@ -248,3 +248,131 @@ class TextFieldHeader extends StatelessWidget {
     );
   }
 }
+
+class CustomDropDown<T> extends HookWidget {
+  final String? hint;
+  final List<DropdownMenuItem<T>> items;
+  final Function(dynamic) onchanged;
+  final String? Function(dynamic)? validator;
+  final bool hideUnderline;
+  final T? selectedItem;
+  final double borderRadius;
+  final Widget? icon;
+  final String fieldName;
+  final bool hasHeaderTitle;
+  final TextEditingController? controller;
+  final bool isRequiredField;
+  final bool isFill;
+  final bool isLoading;
+  final Function()? onRetry;
+  const CustomDropDown({
+    Key? key,
+    this.hint,
+    required this.items,
+    required this.onchanged,
+    this.hideUnderline = false,
+    this.onRetry,
+    this.borderRadius = 10,
+    this.fieldName = "",
+    this.isFill = false,
+    this.isLoading = false,
+    this.validator,
+    this.selectedItem,
+    this.controller,
+    this.hasHeaderTitle = true,
+    this.isRequiredField = false,
+    this.icon,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final isFocused = useState(false);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        (hasHeaderTitle && isFocused.value) || (hasHeaderTitle)
+            ? FieldHeader(
+                fieldName: fieldName, isRequiredField: isRequiredField)
+            : const SizedBox(),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 30.0),
+          child: DropdownButtonFormField<T>(
+            elevation: 3,
+            dropdownColor: Colors.white,
+            isDense: true,
+            isExpanded: true,
+            icon: icon ,
+            hint: Text(
+             (hint ?? fieldName),
+              
+            ),
+            value: selectedItem,
+            items: isLoading || onRetry != null
+                ? []
+                : List<DropdownMenuItem<T>>.from(items),
+           // style: CustomStyle.textStyleBody.copyWith(fontSize: 16),
+            onTap: onRetry == null ? null : onRetry!(),
+            onChanged: (value) {
+              onchanged(value);
+            },
+            validator: validator,
+            decoration: InputDecoration(
+                filled: true,
+                fillColor: isFill ? const Color(0xffF8F9FD) : Colors.white,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                enabledBorder: outlineInputBorder,
+                border: outlineInputBorder,
+                focusedBorder: outlineInputBorder,
+                errorBorder: outlineInputBorder.copyWith(
+                    borderSide: const BorderSide(color: Colors.red))),
+          ),
+        ),
+      ],
+    );
+  }
+
+}
+
+class FieldHeader extends StatelessWidget {
+  const FieldHeader({
+    Key? key,
+    required this.fieldName,
+    required this.isRequiredField,
+  }) : super(key: key);
+
+  final String fieldName;
+  final bool isRequiredField;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(left: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xffE9E9E9),
+        border: Border.all(color: Colors.transparent),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            fieldName,
+            style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                ),
+          ),
+          isRequiredField
+              ? const Text(
+                  " *",
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.red),
+                )
+              : Container()
+        ],
+      ),
+    );
+  }
+}

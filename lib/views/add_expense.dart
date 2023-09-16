@@ -9,7 +9,9 @@ import 'package:provider/provider.dart';
 
 class AddExpenseView extends StatefulHookWidget {
   static String id = 'add_expense';
-  const AddExpenseView({super.key});
+  const AddExpenseView({super.key, this.index, this.isEdit});
+  final int? index;
+  final bool? isEdit;
 
   @override
   State<AddExpenseView> createState() => _AddExpenseViewState();
@@ -17,16 +19,40 @@ class AddExpenseView extends StatefulHookWidget {
 
 class _AddExpenseViewState extends State<AddExpenseView> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  List<String> categories = [
+    'Food',
+    'Transportation',
+    'Subcriptions',
+    'Fuel',
+    'Clothing',
+    'Rent',
+    'Miscellaneous',
+    'Others'
+  ];
   @override
   Widget build(BuildContext context) {
-    var description = useTextEditingController();
-    var category = useTextEditingController();
-    var date = useTextEditingController();
-    var amount = useTextEditingController();
-    var expenseDate = ValueNotifier(DateTime.now());
     var viewModel = context.watch<ExpenseViewModel>();
+    var description = useTextEditingController(
+        text: widget.index != null
+            ? viewModel.expenses[widget.index!].expenseDescription
+            : "");
+    //var category = useTextEditingController();
+    var date = useTextEditingController(
+        text: widget.index != null
+            ? viewModel.expenses[widget.index!].expenseDate.toString()
+            : "");
+    var amount = useTextEditingController(
+        text: widget.index != null
+            ? viewModel.expenses[widget.index!].amount
+            : "");
+    var expenseDate = ValueNotifier(DateTime.now());
+    var selectedCategory = useState(widget.index != null
+        ? viewModel.expenses[widget.index!].expenseCategory
+        : "");
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Add Expense")),
+      appBar: AppBar(
+          title: Text(widget.index != null ? "Edit Expense" : "Add Expense")),
       body: Form(
           key: formKey,
           child: Container(
@@ -49,15 +75,38 @@ class _AddExpenseViewState extends State<AddExpenseView> {
                   maxLines: 1,
                   isRequiredField: false,
                   expenseField: true,
-                  onValidate: Validators.validateIsEmpty,
+                  // onValidate: Validators.validateIsEmpty,
                 ),
-                CustomInputfield(
-                  controller: category,
-                  fieldName: "Expense category",
-                  maxLines: 1,
+                Container(
+                    margin: const EdgeInsets.only(bottom: 4),
+                    alignment: Alignment.centerLeft,
+                    child: const TextFieldHeader(
+                      textHeader: "Expense category",
+                      isRequiredField: true,
+                    )),
+                CustomDropDown(
+                  isFill: true,
                   isRequiredField: true,
-                  expenseField: true,
-                  onValidate: Validators.validateIsEmpty,
+                  hasHeaderTitle: false,
+                  fieldName: "Expense category",
+                  hint: "Select Expense category",
+                  items: categories
+                      .map(
+                        (item) => DropdownMenuItem(
+                          value: item,
+                          child: Text(
+                            item,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onchanged: (val) {
+                    selectedCategory.value = val.toString();
+                  },
+                  validator: (val) {
+                    if (val == null) return "Required !!!";
+                    return null;
+                  },
                 ),
                 Container(
                     margin: const EdgeInsets.only(bottom: 4),
@@ -84,18 +133,23 @@ class _AddExpenseViewState extends State<AddExpenseView> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4.0)),
                     elevation: 2,
-                    child: const Text(
-                      "Save Expense",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    child: Text(
+                      widget.index != null ? "Edit Expense" : "Save Expense",
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
-                        viewModel.addExpense = ExpenseModel(
+                        var data = ExpenseModel(
                             amount.text,
-                            category.text,
+                            selectedCategory.value,
                             description.text,
                             DateTime.parse(date.text));
+                        if (widget.index != null) {
+                          viewModel.editExpense(widget.index!, data);
+                        } else {
+                          viewModel.addExpense = data;
+                        }
 
                         Navigator.pop(context);
                         // HiveRepository()

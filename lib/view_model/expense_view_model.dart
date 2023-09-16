@@ -13,23 +13,29 @@ class ExpenseViewModel with ChangeNotifier {
   getExpense() async {
     await HiveRepository.openHives(["expenses"]);
     var data = hive.get(key: "expenses", name: "expenses") ?? [];
-    _expenses = List<ExpenseModel>.from(data.map((e) => e as ExpenseModel));    
+    _expenses = List<ExpenseModel>.from(data.map((e) => e as ExpenseModel));
     notifyListeners();
   }
 
   set addExpense(ExpenseModel data) {
     _expenses.add(data);
-
-    print(_expenses);
     hive.add<List<ExpenseModel>>(
         item: _expenses, key: "expenses", name: "Expenses");
+    notifyListeners();
+  }
 
+  editExpense(int index, ExpenseModel data) {
+    _expenses.removeAt(index);
+    _expenses.insertAll(index, [data]);
+
+    hive.add<List<ExpenseModel>>(
+        item: _expenses, key: "expenses", name: "Expenses");
     notifyListeners();
   }
 
   set deleteExpense(int index) {
     _expenses.removeAt(index);
-    hive.remove( key: "expenses", name: "Expenses");
+    hive.remove(key: "expenses", name: "Expenses");
     notifyListeners();
   }
 }

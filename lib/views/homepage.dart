@@ -39,15 +39,20 @@ class _HomePageViewState extends State<HomePageView> {
                 endActionPane: ActionPane(
                   motion: const ScrollMotion(),
                   children: [
-                     SlidableAction(
-                      backgroundColor: ColorScheme.fromSwatch(primarySwatch: Colors.green)
-                          .background,
+                    SlidableAction(
+                      backgroundColor:
+                          ColorScheme.fromSwatch(primarySwatch: Colors.green)
+                              .background,
                       foregroundColor: Colors.white,
                       icon: Icons.edit,
                       label: 'Edit',
                       onPressed: (context) {
-                       
-                     },),
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>  AddExpenseView(index: index, isEdit: true,)));
+                      },
+                    ),
                     SlidableAction(
                       onPressed: (context) {
                         showDialog(
@@ -57,12 +62,13 @@ class _HomePageViewState extends State<HomePageView> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
                               child: Container(
-                                padding:const EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 16, vertical: 20),
                                 height: 155,
                                 child: Column(children: [
-                                 const Text("Are you sure you want to delete?"),
-                                 const SizedBox(
+                                  const Text(
+                                      "Are you sure you want to delete?"),
+                                  const SizedBox(
                                     height: 50,
                                   ),
                                   Row(
@@ -86,13 +92,13 @@ class _HomePageViewState extends State<HomePageView> {
                                           ),
                                           child: const Text(
                                             "Cancel",
-                                            
                                           ),
                                         ),
                                       ),
                                       InkWell(
                                         onTap: () {
                                           Navigator.pop(context);
+                                          viewModel.deleteExpense = index;
                                         },
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
@@ -105,7 +111,6 @@ class _HomePageViewState extends State<HomePageView> {
                                           ),
                                           child: const Text(
                                             "Delete",
-                                           
                                           ),
                                         ),
                                       )
@@ -139,7 +144,10 @@ class _HomePageViewState extends State<HomePageView> {
                         children: [
                           Text(viewModel.expenses[index].expenseDescription),
                           Text(viewModel.expenses[index].expenseCategory),
-                          Text(viewModel.expenses[index].expenseDate.toString().split(" ").first),
+                          Text(viewModel.expenses[index].expenseDate
+                              .toString()
+                              .split(" ")
+                              .first),
                         ]),
                     const Spacer(),
                     Text(viewModel.expenses[index].amount.toString())
