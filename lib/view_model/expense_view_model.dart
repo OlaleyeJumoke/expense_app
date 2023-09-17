@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:expense_tracker_app/data/hive_storage_repository.dart';
 import 'package:expense_tracker_app/model/expense_model.dart';
 import 'package:flutter/foundation.dart';
@@ -7,6 +10,12 @@ class ExpenseViewModel with ChangeNotifier {
   ExpenseViewModel() {
     getExpense();
   }
+   CurrencyTextInputFormatter amountFormatter = CurrencyTextInputFormatter(
+    symbol: "₦",
+    name: "NGN",
+    locale: Platform.localeName,
+    decimalDigits: 2,
+  );
   List<ExpenseModel> _expenses = [];
 
   List<ExpenseModel> get expenses => _expenses;

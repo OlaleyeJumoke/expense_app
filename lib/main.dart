@@ -3,6 +3,7 @@ import 'package:expense_tracker_app/utils/app_routes.dart';
 import 'package:expense_tracker_app/view_model/expense_view_model.dart';
 import 'package:expense_tracker_app/views/homepage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart' as pp;
 import 'package:provider/provider.dart';
@@ -29,6 +30,10 @@ class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<ExpenseViewModel>(
@@ -36,6 +41,7 @@ class _MyAppState extends State<MyApp> {
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
           useMaterial3: true,
